@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Visualiser</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1><span class="logo">&#x1F40D;</span> Python Visualiser</h1>
+    <div class="topbar-actions">
+      <label class="examples">Example
+        <select id="examples"></select>
+      </label>
+      <button id="btn-edit" class="btn secondary" hidden>&#x270E; Edit code</button>
+      <button id="btn-run" class="btn primary">&#x25B6; Visualise</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="left">
+      <div class="card code-card">
+        <div class="card-title">
+          <span id="code-title">Code</span>
+          <span class="legend" id="arrow-legend" hidden>
+            <span class="arrow prev">&#x279C;</span> just executed
+            <span class="arrow next">&#x279C;</span> next to execute
+          </span>
+        </div>
+        <div id="editor" class="editor">
+          <pre id="gutter" class="gutter" aria-hidden="true"></pre>
+          <textarea id="code" spellcheck="false" autocomplete="off"
+                    autocapitalize="off" aria-label="Python code"></textarea>
+        </div>
+        <div id="codeview" class="codeview" hidden></div>
+      </div>
+
+      <div class="card controls" id="controls" hidden>
+        <div class="buttons">
+          <button class="btn icon" id="btn-first" title="First step (Home)">&#x23EE;</button>
+          <button class="btn icon" id="btn-prev" title="Step back (&larr;)">&#x25C0;</button>
+          <button class="btn icon play" id="btn-play" title="Play / pause (space)">&#x25B6;</button>
+          <button class="btn icon" id="btn-next" title="Step forward (&rarr;)">&#x25B6;&#x2759;</button>
+          <button class="btn icon" id="btn-last" title="Last step (End)">&#x23ED;</button>
+          <select id="speed" title="Playback speed">
+            <option value="1500">0.5&times;</option>
+            <option value="800" selected>1&times;</option>
+            <option value="400">2&times;</option>
+            <option value="150">5&times;</option>
+          </select>
+        </div>
+        <input type="range" id="slider" min="0" max="0" value="0" aria-label="Step">
+        <div class="step-counter" id="step-counter"></div>
+      </div>
+
+      <div class="card" id="explain-card" hidden>
+        <div class="card-title">What happened</div>
+        <div id="explain" class="explain"></div>
+      </div>
+
+      <div class="card" id="stdin-card">
+        <div class="card-title">Input <span class="hint">one line per <code>input()</code> call</span></div>
+        <textarea id="stdin" rows="2" spellcheck="false" placeholder="(optional)"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Output</div>
+        <pre id="stdout" class="stdout"></pre>
+      </div>
+    </section>
+
+    <section class="right card">
+      <div id="viz" class="viz">
+        <svg id="arrows" class="arrows" aria-hidden="true">
+          <defs>
+            <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5"
+                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" class="arrowhead"></path>
+            </marker>
+          </defs>
+        </svg>
+        <div class="viz-col">
+          <h2>Call stack <span class="hint">newest on top</span></h2>
+          <div id="frames"></div>
+        </div>
+        <div class="viz-col">
+          <h2>Objects <span class="hint">heap</span></h2>
+          <div id="heap"></div>
+        </div>
+      </div>
+      <div id="placeholder" class="placeholder">
+        <p>Write some Python (or pick an example) and press <b>Visualise</b>.</p>
+        <p>You can then step through the program line by line and watch the
+           call stack, variables and objects change.</p>
+        <p class="hint">Keys: &larr; / &rarr; step, space play/pause, Home / End jump.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="examples.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
