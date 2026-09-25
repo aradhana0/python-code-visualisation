@@ -1,5 +1,7 @@
 # Python Code Visualiser
 
+![Stepping through the "Lists & aliasing" example](docs/screenshot.png)
+
 Step through a Python program line by line and see what each line does:
 
 - **Line pointers.** A green arrow marks the line that just ran and a red arrow marks the next line to run. Exceptions get a ✖.
