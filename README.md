@@ -50,7 +50,16 @@ python -m job_tracker --only Stripe run --days 7
 python -m unittest discover -s tests    # offline tests
 ```
 
-Run it daily, for example with cron: `0 8 * * * cd /path/to/repo && python3 -m job_tracker run --pdf`.
+### Morning and evening schedule
+
+```bash
+scripts/install_cron.sh                 # runs daily at 08:52 and 18:52 local time
+scripts/install_cron.sh 07:30 19:00     # custom times (re-running replaces the old schedule)
+scripts/install_cron.sh --remove
+```
+
+Each run appends to `output/cron.log` and refreshes `output/summary.md`. Other crontab entries are left untouched.
+On macOS, allow cron in System Settings → Privacy & Security → Full Disk Access if runs don't appear in the log.
 
 ## Adding companies
 
