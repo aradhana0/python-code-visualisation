@@ -1,0 +1,69 @@
+# Copy to profile.toml (gitignored) and fill in. The tracker never commits profile.toml.
+
+[candidate]
+name = "Your Name"
+email = "you@example.com"
+phone = ""
+location = "Bangalore, India"
+linkedin = "https://www.linkedin.com/in/your-handle/"
+portfolio = "https://your-site.example"
+years_experience = 7
+headline_frontend = "Senior Frontend Engineer — React / TypeScript"
+headline_fullstack = "Full-Stack Software Engineer — React / TypeScript / Python"
+open_to_relocation = true
+
+[criteria]
+max_age_days = 3                  # only jobs posted in the last N days
+min_pay_lpa = 60                  # Bangalore + remote buckets
+pay_rule = "max"                  # "max": top of the published range must meet it; "min": bottom must
+allow_undisclosed_pay = true      # keep jobs that don't publish pay (pay_check = "undisclosed"); false = strict
+require_visa_for = ["uae", "uk", "europe"]
+cover_letter_for = ["uae", "uk", "europe"]
+exclude_companies = []            # e.g. your current employer
+# Titles matching this are never considered
+exclude_title_regex = "intern|internship|graduate|junior|\\bjr\\b|associate|\\b(sde|engineer|developer)[\\s-]?(i|1)\\b|manager|director|head of|\\bvp\\b|recruit|designer|sales|consultant"
+uk_sponsor_register_csv = ""      # optional: path to the gov.uk "Register of licensed sponsors: workers" CSV
+
+[cover_letter]                    # reusable sentences; job-specific parts are generated
+stack_frontend = "React and TypeScript"
+stack_fullstack = "React, TypeScript and Python"
+current_role_proof = "most recently at <Company>, where I ..."
+working_style = ""
+ai_paragraph = ""                 # used only when the job description mentions AI/LLMs
+
+[fx_to_inr]                       # approximate - update occasionally
+USD = 88.0
+EUR = 103.0
+GBP = 118.0
+AED = 24.0
+
+[resume]
+summary = "..."
+# Canonical names used for the match score (see job_tracker/scoring.py VOCABULARY)
+match_skills = ["React", "TypeScript"]
+
+[[resume.skills]]
+category = "Frontend"
+items = ["React.js", "TypeScript"]
+
+[[resume.experience]]
+title = "Senior Software Engineer"
+company = "Company"
+dates = "Jan 2023 – Present"
+[[resume.experience.sections]]
+name = ""
+bullets = ["Did a thing with measurable impact"]
+
+[[resume.projects]]
+name = "Project"
+tagline = ""
+stack = ""
+bullets = []
+
+[[resume.education]]
+degree = "Degree"
+school = "School"
+dates = "2014–2017"
+
+[resume.certifications]
+items = []

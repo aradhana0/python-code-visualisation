@@ -1,0 +1,248 @@
+# Companies whose OFFICIAL career pages are scanned. Each entry points at the public
+# job-board API behind the company's own careers site (never an aggregator).
+#
+# This is a STARTER list: board slugs were written from memory and could not be verified
+# from the environment that generated them. Run `python -m job_tracker check-sources`
+# first; fix or disable (enabled = false) anything reported as FAIL.
+#
+# How to find a slug: open the company's careers page and look at the apply links:
+#   boards.greenhouse.io/<slug> or job-boards.greenhouse.io/<slug>   -> ats = "greenhouse"
+#   jobs.lever.co/<slug> (jobs.eu.lever.co -> region = "eu")          -> ats = "lever"
+#   jobs.ashbyhq.com/<slug>                                           -> ats = "ashby"
+#   jobs.smartrecruiters.com/<slug>                                   -> ats = "smartrecruiters"
+#   <host>/en-US/<site>  where host ends in myworkdayjobs.com         -> ats = "workday"
+#       tenant = first label of host (e.g. "salesforce"), site = path segment after locale
+
+# ------------------------------------------------------------------ strong India (Bangalore) pay
+[[company]]
+name = "Stripe"
+ats = "greenhouse"
+slug = "stripe"
+
+[[company]]
+name = "Databricks"
+ats = "greenhouse"
+slug = "databricks"
+
+[[company]]
+name = "Postman"
+ats = "greenhouse"
+slug = "postman"
+
+[[company]]
+name = "Rubrik"
+ats = "greenhouse"
+slug = "rubrik"
+
+[[company]]
+name = "Coinbase"
+ats = "greenhouse"
+slug = "coinbase"
+
+[[company]]
+name = "PhonePe"
+ats = "greenhouse"
+slug = "phonepe"
+
+[[company]]
+name = "MongoDB"
+ats = "greenhouse"
+slug = "mongodb"
+
+[[company]]
+name = "Okta"
+ats = "greenhouse"
+slug = "okta"
+
+[[company]]
+name = "Twilio"
+ats = "greenhouse"
+slug = "twilio"
+
+[[company]]
+name = "Rippling"
+ats = "ashby"
+slug = "rippling"
+
+[[company]]
+name = "Atlassian"
+ats = "lever"
+slug = "atlassian"
+
+[[company]]
+name = "Razorpay"
+ats = "lever"
+slug = "razorpay"
+
+[[company]]
+name = "Meesho"
+ats = "lever"
+slug = "meesho"
+
+[[company]]
+name = "Visa"
+ats = "smartrecruiters"
+slug = "Visa"
+
+[[company]]
+name = "ServiceNow"
+ats = "smartrecruiters"
+slug = "ServiceNow"
+
+[[company]]
+name = "Salesforce"
+ats = "workday"
+host = "salesforce.wd12.myworkdayjobs.com"
+tenant = "salesforce"
+site = "External_Career_Site"
+
+[[company]]
+name = "NVIDIA"
+ats = "workday"
+host = "nvidia.wd5.myworkdayjobs.com"
+tenant = "nvidia"
+site = "NVIDIAExternalCareerSite"
+
+[[company]]
+name = "Walmart Global Tech"
+ats = "workday"
+host = "walmart.wd5.myworkdayjobs.com"
+tenant = "walmart"
+site = "WalmartExternal"
+
+[[company]]
+name = "PayPal"
+ats = "workday"
+host = "paypal.wd1.myworkdayjobs.com"
+tenant = "paypal"
+site = "jobs"
+
+[[company]]
+name = "Autodesk"
+ats = "workday"
+host = "autodesk.wd1.myworkdayjobs.com"
+tenant = "autodesk"
+site = "Ext"
+
+[[company]]
+name = "Mastercard"
+ats = "workday"
+host = "mastercard.wd1.myworkdayjobs.com"
+tenant = "mastercard"
+site = "CorporateCareers"
+
+# ------------------------------------------------------------------ remote-first
+[[company]]
+name = "GitLab"
+ats = "greenhouse"
+slug = "gitlab"
+
+[[company]]
+name = "Canonical"
+ats = "greenhouse"
+slug = "canonical"
+
+[[company]]
+name = "Grafana Labs"
+ats = "greenhouse"
+slug = "grafanalabs"
+
+[[company]]
+name = "Vercel"
+ats = "greenhouse"
+slug = "vercel"
+
+[[company]]
+name = "PostHog"
+ats = "ashby"
+slug = "posthog"
+
+[[company]]
+name = "Supabase"
+ats = "ashby"
+slug = "supabase"
+
+[[company]]
+name = "Deel"
+ats = "ashby"
+slug = "deel"
+
+# ------------------------------------------------------------------ UK / Europe (known sponsors)
+[[company]]
+name = "Monzo"
+ats = "greenhouse"
+slug = "monzo"
+
+[[company]]
+name = "GoCardless"
+ats = "greenhouse"
+slug = "gocardless"
+
+[[company]]
+name = "Intercom"
+ats = "greenhouse"
+slug = "intercom"
+
+[[company]]
+name = "Cloudflare"
+ats = "greenhouse"
+slug = "cloudflare"
+
+[[company]]
+name = "Datadog"
+ats = "greenhouse"
+slug = "datadog"
+
+[[company]]
+name = "Elastic"
+ats = "greenhouse"
+slug = "elastic"
+
+[[company]]
+name = "Figma"
+ats = "greenhouse"
+slug = "figma"
+
+[[company]]
+name = "Checkout.com"
+ats = "greenhouse"
+slug = "checkoutcom"
+
+[[company]]
+name = "N26"
+ats = "greenhouse"
+slug = "n26"
+
+[[company]]
+name = "Adyen"
+ats = "greenhouse"
+slug = "adyen"
+
+[[company]]
+name = "GetYourGuide"
+ats = "greenhouse"
+slug = "getyourguide"
+
+[[company]]
+name = "HelloFresh"
+ats = "greenhouse"
+slug = "hellofresh"
+
+[[company]]
+name = "Miro"
+ats = "greenhouse"
+slug = "realtimeboardglobal"
+
+[[company]]
+name = "Spotify"
+ats = "lever"
+slug = "spotify"
+
+[[company]]
+name = "Delivery Hero"
+ats = "smartrecruiters"
+slug = "DeliveryHero"
+
+# ------------------------------------------------------------------ UAE
+# Add UAE employers here as you find their boards (e.g. Careem, talabat, Tabby, Property Finder).
+# Many UAE companies use Greenhouse, Lever, SmartRecruiters or Workday.

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+
+# Personal data: never commit (this repo is public)
+profile.toml
+output/
