@@ -12,6 +12,15 @@ class FetchError(RuntimeError):
     pass
 
 
+def get_text(url: str, *, timeout: int = 30) -> str:
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (job-tracker)", "Accept": "text/html,*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read().decode("utf-8", errors="replace")
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise FetchError(f"{url}: {exc}") from exc
+
+
 def get_json(url: str, *, data: dict | None = None, timeout: int = 30, retries: int = 2):
     """GET (or POST when ``data`` is given) a URL and decode JSON, with small retries."""
     body = json.dumps(data).encode() if data is not None else None

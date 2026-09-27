@@ -6,8 +6,10 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from . import classify, criteria, documents, store
-from .http import get_json
+import re
+
+from . import classify, criteria, discover, documents, store
+from .http import FetchError, get_json, get_text
 from .pipeline import Result, process
 from .sources import fetch_company
 
@@ -23,6 +25,11 @@ def load_companies(path: str, only: list[str] | None) -> list[dict]:
         wanted = {o.lower() for o in only}
         companies = [c for c in companies if c["name"].lower() in wanted]
     return [c for c in companies if c.get("enabled", True)]
+
+
+def split_unknown(companies: list[dict]) -> tuple[list[dict], list[dict]]:
+    known = [c for c in companies if c.get("ats") != "unknown"]
+    return known, [c for c in companies if c.get("ats") == "unknown"]
 
 
 def fetch_all(companies: list[dict], workers: int, fetch=get_json):
@@ -43,7 +50,7 @@ def cmd_run(args, fetch=get_json) -> int:
     profile = load_toml(args.profile)
     if args.days:
         profile["criteria"]["max_age_days"] = args.days
-    companies = load_companies(args.companies, args.only)
+    companies, unknown = split_unknown(load_companies(args.companies, args.only))
     now = store.utcnow()
     out = Path(args.out)
     print(f"Fetching {len(companies)} companies from their official career-page APIs...", file=sys.stderr)
@@ -52,6 +59,7 @@ def cmd_run(args, fetch=get_json) -> int:
 
     result = Result()
     result.errors.extend(errors)
+    result.errors.extend(f"{c['name']}: job board not identified yet - run `python -m job_tracker discover --write`" for c in unknown)
     process(jobs, profile, now, register, result)
 
     letters_for = set(profile["criteria"].get("cover_letter_for", ["uae", "uk", "europe"]))
@@ -108,7 +116,9 @@ def render_summary(all_rows, new_counts, result: Result, fetched: int, now) -> s
 
 
 def cmd_check(args, fetch=get_json) -> int:
-    companies = load_companies(args.companies, args.only)
+    companies, unknown = split_unknown(load_companies(args.companies, args.only))
+    for c in unknown:
+        print(f"TODO  {c['name']:<28} {'unknown':<16} run `python -m job_tracker discover --write`")
     bad = 0
     for c in companies:
         try:
@@ -119,6 +129,44 @@ def cmd_check(args, fetch=get_json) -> int:
             print(f"FAIL  {c['name']:<28} {c['ats']:<16} {exc}")
     print(f"\n{len(companies) - bad}/{len(companies)} sources reachable")
     return 1 if bad else 0
+
+
+def cmd_discover(args, get_page=get_text) -> int:
+    if args.url:
+        targets = [{"name": args.name or "NEW COMPANY", "careers_url": args.url}]
+    else:
+        targets = [c for c in load_companies(args.companies, args.only) if c.get("ats") == "unknown"]
+    if not targets:
+        print("Nothing to discover: every company already has an ats. Use --url URL --name NAME for a new one.")
+        return 0
+    text = Path(args.companies).read_text(encoding="utf-8") if args.write else ""
+    missing = 0
+    for c in targets:
+        try:
+            found = discover.detect(get_page(c["careers_url"]))
+        except FetchError as exc:
+            found, err = [], str(exc)
+        else:
+            err = ""
+        if not found:
+            missing += 1
+            print(f"# {c['name']}: no job board found at {c['careers_url']} {err}".rstrip())
+            print("#   The page may build its job list with JavaScript. Open it in a browser, click any job's")
+            print("#   Apply button and run discover again with that URL: --url <apply-url> --name ...\n")
+            continue
+        entry = found[0]
+        print(discover.toml_entry(c["name"], entry) + "\n")
+        if len(found) > 1:
+            print(f"#   other candidates: {found[1:]}\n")
+        if args.write and not args.url:
+            block = re.compile(r'(\[\[company\]\]\s*\nname = "' + re.escape(c["name"]) + r'"\s*\n)ats = "unknown"\s*\n')
+            fields = "".join(f'{k} = "{v}"\n' for k, v in entry.items())
+            text, n = block.subn(lambda m: m.group(1) + fields, text, count=1)
+            if n:
+                print(f"#   written to {args.companies}\n")
+    if args.write and not args.url:
+        Path(args.companies).write_text(text, encoding="utf-8")
+    return 1 if missing else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -139,6 +187,12 @@ def main(argv: list[str] | None = None) -> int:
 
     check = sub.add_parser("check-sources", help="verify every company in companies.toml is reachable")
     check.set_defaults(func=cmd_check)
+
+    disc = sub.add_parser("discover", help="identify the job board behind a careers page")
+    disc.add_argument("--url", help="a careers page or job link to inspect")
+    disc.add_argument("--name", help="company name for --url")
+    disc.add_argument("--write", action="store_true", help="fill in companies.toml entries marked ats = \"unknown\"")
+    disc.set_defaults(func=cmd_discover)
 
     args = p.parse_args(argv)
     return args.func(args)

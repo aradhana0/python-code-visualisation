@@ -242,7 +242,23 @@ slug = "spotify"
 name = "Delivery Hero"
 ats = "smartrecruiters"
 slug = "DeliveryHero"
+brands = ["talabat"]   # talabat (Dubai) hires through Delivery Hero's board; rows are labelled "talabat (Delivery Hero)"
 
 # ------------------------------------------------------------------ UAE
-# Add UAE employers here as you find their boards (e.g. Careem, talabat, Tabby, Property Finder).
-# Many UAE companies use Greenhouse, Lever, SmartRecruiters or Workday.
+# talabat: see the Delivery Hero entry above (same SmartRecruiters board).
+[[company]]
+name = "Careem"
+ats = "greenhouse"
+slug = "careem"   # confirmed: job-boards.greenhouse.io/careem
+
+# Tabby and Noon: job board not identified yet. Run `python -m job_tracker discover --write`
+# to detect it from their careers pages and fill these entries in.
+[[company]]
+name = "Tabby"
+ats = "unknown"
+careers_url = "https://tabby.ai/en-AE/careers"
+
+[[company]]
+name = "Noon"
+ats = "unknown"
+careers_url = "https://joinnoon.com/jobs"

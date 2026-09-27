@@ -120,9 +120,19 @@ ASHBY = {
     ]
 }
 
-SR_LIST = {"content": [{"id": "77", "name": "Senior UI Engineer", "releasedDate": iso(1),
-                        "location": {"city": "Bengaluru", "country": "in", "remote": False}}], "totalFound": 1}
+SR_LIST = {"content": [
+    {"id": "77", "name": "Senior UI Engineer", "releasedDate": iso(1),
+     "location": {"city": "Bengaluru", "country": "in", "remote": False}},
+    {"id": "88", "name": "Senior Frontend Engineer", "releasedDate": iso(1),
+     "location": {"city": "Dubai", "country": "ae", "remote": False}},
+], "totalFound": 2}
 SR_DETAIL = {"jobAd": {"sections": {"jobDescription": {"text": "<p>React, Redux, Jest.</p>"}}}}
+SR_DETAIL_TALABAT = {"jobAd": {"sections": {"jobDescription": {
+    "text": "<p>Join talabat to build React and TypeScript apps. Visa sponsorship is provided.</p>"}}}}
+WORKABLE = {"jobs": [{"title": "Senior Full Stack Engineer", "url": "https://apply.workable.com/zeta-uae/j/ABC123/",
+                      "published_on": (NOW - timedelta(days=1)).date().isoformat(), "city": "Abu Dhabi",
+                      "country": "United Arab Emirates", "telecommuting": False,
+                      "description": "<p>React, Node.js and Python. We offer visa sponsorship and relocation.</p>"}]}
 
 WORKDAY_LIST = {"jobPostings": [{"title": "Lead Frontend Engineer", "externalPath": "/job/Bangalore/Lead-FE_R1",
                                  "locationsText": "Bangalore, India", "postedOn": "Posted Yesterday"}]}
@@ -138,7 +148,13 @@ def fake_fetch(url, data=None, **_):
     if "ashbyhq" in url:
         return ASHBY
     if "smartrecruiters" in url:
-        return SR_DETAIL if url.rstrip("/").endswith("/77") else SR_LIST
+        if url.rstrip("/").endswith("/77"):
+            return SR_DETAIL
+        if url.rstrip("/").endswith("/88"):
+            return SR_DETAIL_TALABAT
+        return SR_LIST
+    if "workable" in url:
+        return WORKABLE
     if "myworkdayjobs" in url:
         if url.endswith("/jobs"):
             return WORKDAY_LIST if data["searchText"] == "frontend" else {"jobPostings": []}
@@ -163,6 +179,7 @@ slug = "gamma"
 name = "Delta"
 ats = "smartrecruiters"
 slug = "Delta"
+brands = ["talabat"]
 [[company]]
 name = "Epsilon"
 ats = "workday"
@@ -170,9 +187,17 @@ host = "eps.wd1.myworkdayjobs.com"
 tenant = "eps"
 site = "Ext"
 [[company]]
+name = "Zeta UAE"
+ats = "workable"
+slug = "zeta-uae"
+[[company]]
 name = "Adobe"
 ats = "greenhouse"
 slug = "adobe"
+[[company]]
+name = "Tabby"
+ats = "unknown"
+careers_url = "https://tabby.ai/careers"
 """
 
 
@@ -269,7 +294,10 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(titles["bangalore_fullstack"], [])  # 25-35 LPA job filtered out
         self.assertEqual(titles["remote"], ["Senior Full-Stack Engineer"])
         self.assertEqual(titles["uk"], ["Full Stack Engineer"])  # no-sponsorship job filtered out
-        self.assertEqual(titles["uae"], ["Senior Software Engineer"])
+        self.assertEqual(titles["uae"], ["Senior Frontend Engineer", "Senior Full Stack Engineer", "Senior Software Engineer"])
+        uae = {r["title"]: r for r in self.rows("uae")}
+        self.assertEqual(uae["Senior Frontend Engineer"]["company"], "talabat (Delta)")
+        self.assertEqual(uae["Senior Full Stack Engineer"]["location"], "Abu Dhabi, United Arab Emirates")
         self.assertEqual(titles["europe"], ["Frontend Engineer (React)"])
 
         fe = {r["title"]: r for r in self.rows("bangalore_frontend")}
@@ -304,10 +332,43 @@ class EndToEndTests(unittest.TestCase):
         import tomllib
         companies = tomllib.loads(COMPANIES)["company"]
         for c in companies:
+            if c["ats"] == "unknown":
+                continue
             jobs = fetch_company(c, fake_fetch)
             self.assertTrue(jobs, c["name"])
             for j in jobs:
                 self.assertTrue(j.url.startswith("https://"), j)
+
+
+class DiscoverTests(unittest.TestCase):
+    def test_detect(self):
+        from job_tracker.discover import detect
+        cases = {
+            '<a href="https://job-boards.greenhouse.io/careem/jobs/123">': {"ats": "greenhouse", "slug": "careem"},
+            '<script src="https://boards.greenhouse.io/embed/job_board/js?for=acme">': {"ats": "greenhouse", "slug": "acme"},
+            'href="https://jobs.lever.co/beta/abc-123"': {"ats": "lever", "slug": "beta"},
+            'href="https://jobs.eu.lever.co/beta/abc"': {"ats": "lever", "slug": "beta", "region": "eu"},
+            'href="https://jobs.ashbyhq.com/tabby/9f1"': {"ats": "ashby", "slug": "tabby"},
+            'href="https://apply.workable.com/noon/j/AB12/"': {"ats": "workable", "slug": "noon"},
+            'href="https://jobs.smartrecruiters.com/DeliveryHero/744"': {"ats": "smartrecruiters", "slug": "DeliveryHero"},
+            'href="https://acme.wd3.myworkdayjobs.com/en-US/Careers/job/X"':
+                {"ats": "workday", "host": "acme.wd3.myworkdayjobs.com", "tenant": "acme", "site": "Careers"},
+        }
+        for html, want in cases.items():
+            self.assertEqual(detect(html)[0], want, html)
+        self.assertEqual(detect("<div id=root></div>"), [])
+
+    def test_discover_write(self):
+        from job_tracker.cli import cmd_discover
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "companies.toml"
+            path.write_text(COMPANIES)
+            args = SimpleNamespace(companies=str(path), only=None, url=None, name=None, write=True)
+            page = '<a href="https://jobs.ashbyhq.com/tabby/1">Apply</a>'
+            self.assertEqual(cmd_discover(args, get_page=lambda url: page), 0)
+            import tomllib
+            tabby = [c for c in tomllib.loads(path.read_text())["company"] if c["name"] == "Tabby"][0]
+            self.assertEqual((tabby["ats"], tabby["slug"]), ("ashby", "tabby"))
 
 
 if __name__ == "__main__":

@@ -54,6 +54,10 @@ def process(jobs: list[Job], profile: dict, now: datetime, uk_register: set[str]
         if not criteria.is_fresh(job, max_age, now):
             result.rejected[f"older than {max_age} days / no date"] += 1
             continue
+        for brand in job.brands:
+            if re.search(rf"\b{re.escape(brand)}\b", f"{job.title}\n{job.description}", re.I):
+                job.company = f"{brand} ({job.company})"
+                break
         job.role_type = classify.role_type(job, exclude_title)
         if not job.role_type:
             result.rejected["title not frontend/fullstack/senior"] += 1

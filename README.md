@@ -29,7 +29,7 @@ Existing folders are never overwritten, so you can hand-edit documents safely. P
 
 ## How the criteria are checked
 
-- **Official sources only.** Each company in `companies.toml` points at the public API behind its own careers site: Greenhouse, Lever, Ashby, SmartRecruiters or Workday. The URL in every CSV row is the employer's own posting.
+- **Official sources only.** Each company in `companies.toml` points at the public API behind its own careers site: Greenhouse, Lever, Ashby, SmartRecruiters, Workable or Workday. The URL in every CSV row is the employer's own posting.
 - **Freshness** is the posting's publish date from the API. A job without a date is skipped.
 - **Pay** comes from the structured salary field when the employer publishes one. Otherwise it is parsed from the text: `60-85 LPA`, `₹65,00,000`, `1.2 Cr`, `$150k`, `£85,000`.
   Most Indian postings don't publish pay, so `allow_undisclosed_pay = true` keeps those jobs with `pay_check = undisclosed`. Set it to `false` for strict mode.
@@ -45,6 +45,7 @@ Existing folders are never overwritten, so you can hand-edit documents safely. P
 ```bash
 cp profile.example.toml profile.toml    # fill in (gitignored - never committed)
 python -m job_tracker check-sources     # verify every company slug in companies.toml
+python -m job_tracker discover --write  # identify job boards for entries marked ats = "unknown" (Tabby, Noon)
 python -m job_tracker run --pdf         # fetch, filter, write CSVs + documents
 python -m job_tracker --only Stripe run --days 7
 python -m unittest discover -s tests    # offline tests
@@ -64,4 +65,7 @@ On macOS, allow cron in System Settings → Privacy & Security → Full Disk Acc
 ## Adding companies
 
 The list in `companies.toml` is a starter list, and its slugs are unverified. Run `check-sources` and fix or disable any that fail.
-To add a company, open its careers page, look at where the "Apply" link goes, and copy the slug. The top of `companies.toml` explains how.
+To add a company, run `python -m job_tracker discover --url <careers page or apply link> --name "Company"`. It prints the `companies.toml` entry to paste in.
+If a careers page builds its job list with JavaScript, discover can't see the board. Open any job and pass its Apply link instead.
+
+A company that hires through its parent's board can be labelled with `brands`. For example, talabat hires through Delivery Hero's board, so those rows show "talabat (Delivery Hero)".

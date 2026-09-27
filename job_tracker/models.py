@@ -34,6 +34,9 @@ class Job:
     # page lazily so we only hit it for jobs that survive the cheap filters.
     loader: Callable[["Job"], None] | None = field(default=None, repr=False, compare=False)
 
+    # Brands hiring through a parent company's board (e.g. talabat on Delivery Hero's)
+    brands: list[str] = field(default_factory=list)
+
     # Filled in by the pipeline
     bucket: str = ""
     role_type: str = ""  # frontend | fullstack

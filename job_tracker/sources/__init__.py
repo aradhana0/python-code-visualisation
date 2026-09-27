@@ -9,7 +9,7 @@ from typing import Callable
 
 from ..http import get_json
 from ..models import Job
-from . import ashby, greenhouse, lever, smartrecruiters, workday
+from . import ashby, greenhouse, lever, smartrecruiters, workable, workday
 
 Fetcher = Callable[..., object]
 
@@ -19,6 +19,7 @@ CONNECTORS = {
     "ashby": ashby.fetch,
     "smartrecruiters": smartrecruiters.fetch,
     "workday": workday.fetch,
+    "workable": workable.fetch,
 }
 
 
@@ -26,4 +27,7 @@ def fetch_company(company: dict, fetch: Fetcher = get_json) -> list[Job]:
     ats = company["ats"]
     if ats not in CONNECTORS:
         raise ValueError(f"{company['name']}: unknown ats '{ats}' (use one of {sorted(CONNECTORS)})")
-    return CONNECTORS[ats](company, fetch)
+    jobs = CONNECTORS[ats](company, fetch)
+    for job in jobs:
+        job.brands = list(company.get("brands", []))
+    return jobs
